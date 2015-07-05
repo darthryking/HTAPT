@@ -5,7 +5,7 @@ By DKY
 
 == Hazard Team Asset Pruning Tool ==
 
-(Version 0.0.0 DEV)
+(Version 0.0.0a DEV)
 
 This tool is an organizational tool that is meant to help clean up any 
 extraneous files in a mod distribution. It does this by scanning a directory's 
@@ -19,8 +19,13 @@ import sys
 import time
 from datetime import timedelta
 
+__version__ = '0.0.0a DEV'
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.join(HERE, 'BMS')
+
+# 4-byte magic number for *.mdl files.
+MDL_MAGIC = 'IDST'
 
 
 def memoized(f):
@@ -106,11 +111,18 @@ def process_data(data):
     )
     
     
+def is_mdl_data(data):
+    """ Determines whether or not the given data is that of a *.mdl file. """
+    return data[:4] == MDL_MAGIC
+    
+    
 def model_contains(data, needle):
     """ Returns whether or not the given model data 'haystack' references the 
     given file 'needle'.
     
     """
+    
+    assert is_mdl_data(data)
     
     needle = needle.lower()
     
@@ -132,7 +144,7 @@ def model_contains(data, needle):
     return False
     
     
-def file_data_contains(data, needle, isMDL=False):
+def file_data_contains(data, needle):
     """ Looks for the given file 'needle' in the data 'haystack'. """
     
     needle = needle.lower()
@@ -141,7 +153,7 @@ def file_data_contains(data, needle, isMDL=False):
         
         # Special processing is required to resolve model material/skin 
         # references.
-        isMDL and model_contains(data, needle) or
+        is_mdl_data(data) and model_contains(data, needle) or
         
         # Check for sound files, whose references don't usually include the 
         # 'sound' directory in the path.
@@ -265,8 +277,6 @@ def main():
         relPath = fileStack.pop()
         absPath = abspath_from_relpath(relPath)
         
-        isMDL = relPath.endswith('.mdl')
-        
         print "Scanning {}...".format(relPath)
         
         with open(absPath, 'rb') as f:
@@ -278,7 +288,7 @@ def main():
         # Check each item in the unmarked set to see if the file that we are 
         # currently analyzing depends on it.
         for unmarkedPath in set(unmarkedFiles):
-            if (file_data_contains(data, unmarkedPath, isMDL=isMDL) or
+            if (file_data_contains(data, unmarkedPath) or
                     depends_on(relPath, unmarkedPath)):
                     
                 print "\tFound {}!".format(unmarkedPath)
