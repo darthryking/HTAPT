@@ -43,6 +43,7 @@ def memoized(f):
             return result
             
     wrapper.__name__ = f.__name__
+    wrapper.__doc__ = f.__doc__
     
     return wrapper
     
@@ -113,7 +114,7 @@ def process_data(data):
     
 def is_mdl_data(data):
     """ Determines whether or not the given data is that of a *.mdl file. """
-    return data[:4] == MDL_MAGIC
+    return data.startswith(MDL_MAGIC)
     
     
 def model_contains(data, needle):
@@ -240,6 +241,8 @@ def should_pursue_references(path):
 def main():
     
     # Initialize the set of root files.
+    # Someday, when I flesh this program out, I won't hard-code this.
+    # But for now, this works for our purposes.
     ROOT_FILES = (
         '!readme.txt',
         'hc_changelog.txt',
