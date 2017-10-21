@@ -11,10 +11,10 @@ It uses a very simple mark-and-sweep algorithm to walk through the mod's depende
 Current version: ___0.0.0 DEV___
 
 
-###Requirements
+### Requirements
 * Python 2.7
 
-###To Run
+### To Run
 1. Place `htapt.py` in the folder directly enclosing the root project folder of your mod.
 2. Make sure the `BASE_DIR` variable is set to the name of your mod's root project folder.
 3. Add a folder named `src` to your mod's `maps/` directory, and put all `*.vmf` files in that directory.
